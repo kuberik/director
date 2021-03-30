@@ -1,0 +1,24 @@
+# permissions for end users to edit plots.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: plot-editor-role
+rules:
+- apiGroups:
+  - director.kuberik.io
+  resources:
+  - plots
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - director.kuberik.io
+  resources:
+  - plots/status
+  verbs:
+  - get

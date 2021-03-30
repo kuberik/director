@@ -1,0 +1,7 @@
+apiVersion: director.kuberik.io/v1
+kind: Plot
+metadata:
+  name: plot-sample
+spec:
+  # Add fields here
+  foo: bar

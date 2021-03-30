@@ -1,0 +1,16 @@
+domain: kuberik.io
+layout:
+- go.kubebuilder.io/v3
+projectName: director
+repo: github.com/kuberik/director
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: kuberik.io
+  group: director
+  kind: Plot
+  path: github.com/kuberik/director/api/v1
+  version: v1
+version: "3"
