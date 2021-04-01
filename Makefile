@@ -100,3 +100,11 @@ GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
 rm -rf $$TMP_DIR ;\
 }
 endef
+
+
+DEBUG?=false
+test-e2e:
+	DEBUG=$(DEBUG) kubectl kuttl test --skip-delete=${DEBUG}
+
+test-e2e-debug:
+	@$(MAKE) DEBUG=true e2e

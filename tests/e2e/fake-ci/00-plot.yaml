@@ -2,7 +2,7 @@
 apiVersion: director.kuberik.io/v1
 kind: Plot
 metadata:
-  name: plot-sample
+  name: fake-ci
 spec:
   frames:
     - name: clone
@@ -12,7 +12,7 @@ spec:
             containers:
               - name: clone
                 image: alpine:latest
-                command: [bash, -c]
+                command: [sh, -c]
                 args: ["echo cloning... && sleep 5"]
     - name: build
       causedBy:
@@ -23,5 +23,5 @@ spec:
             containers:
               - name: build
                 image: alpine:latest
-                command: [bash, -c]
+                command: [sh, -c]
                 args: ["echo building... && sleep 5"]

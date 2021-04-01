@@ -17,7 +17,9 @@ limitations under the License.
 package v1
 
 import (
+	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -27,15 +29,68 @@ import (
 type PlotSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-
-	// Foo is an example field of Plot. Edit plot_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	// +optional
+	Props  []Prop  `json:"props,omitempty"`
+	Frames []Frame `json:"frames,omitempty"`
 }
 
 // PlotStatus defines the observed state of Plot
 type PlotStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	// +optional
+	FrameStatuses []FrameStatus `json:"frameStatuses,omitempty"`
+}
+
+type Prop struct {
+	Name string `json:"name,omitempty"`
+	// +optional
+	Resources []runtime.RawExtension `json:"resources,omitempty"`
+}
+
+type Frame struct {
+	Name   string          `json:"name,omitempty"`
+	Action batchv1.JobSpec `json:"action,omitempty"`
+	// +optional
+	CausedBy []string `json:"causedBy,omitempty"`
+	// +optional
+	Props []string `json:"props,omitempty"`
+}
+
+type FrameStatus struct {
+	Name  string     `json:"name,omitempty"`
+	State FrameState `json:"state,omitempty"`
+}
+
+// FrameState holds a possible state of a frame.
+// Only one of its members may be specified.
+type FrameState struct {
+	// Details about a running frame
+	// +optional
+	Running *FrameStateRunning `json:"running,omitempty"`
+	// Details about a finished frame
+	// +optional
+	Finished *FrameStateFinished `json:"finished,omitempty"`
+}
+
+type FrameStateRunning struct {
+	// Time at which execution of the frame started
+	// +optional
+	StartedAt metav1.Time `json:"startedAt,omitempty"`
+}
+
+type FrameStateFinished struct {
+	// Indicated if the frame finished successfully
+	// +optional
+	Success bool `json:"success,omitempty"`
+	// Time at which execution of the frame started
+	// +optional
+	StartedAt metav1.Time `json:"startedAt,omitempty"`
+	// Time at which the frame finished
+	// +optional
+	FinishedAt metav1.Time `json:"finishedAt,omitempty"`
 }
 
 //+kubebuilder:object:root=true

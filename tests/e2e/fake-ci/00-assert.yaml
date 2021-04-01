@@ -1,0 +1,19 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 60
+---
+apiVersion: director.kuberik.io/v1
+kind: Plot
+metadata:
+  name: fake-ci
+status:
+  frameStatuses:
+    - name: clone
+      state:
+        finished:
+          success: true
+    - name: build
+      state:
+        finished:
+          success: true
