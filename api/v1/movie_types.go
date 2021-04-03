@@ -30,8 +30,9 @@ type MovieSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// +optional
-	Props  []Prop  `json:"props,omitempty"`
-	Frames []Frame `json:"frames,omitempty"`
+	Props []Prop `json:"props,omitempty"`
+	// +optional
+	Screenplay `json:"screenplay,omitempty"`
 }
 
 // MovieStatus defines the observed state of Movie
@@ -48,6 +49,10 @@ type Prop struct {
 	Name string `json:"name,omitempty"`
 	// +optional
 	Resources []runtime.RawExtension `json:"resources,omitempty"`
+}
+
+type Screenplay struct {
+	Frames []Frame `json:"frames,omitempty"`
 }
 
 type Frame struct {
