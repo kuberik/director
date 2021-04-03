@@ -10,7 +10,7 @@ resources:
   controller: true
   domain: kuberik.io
   group: director
-  kind: Plot
+  kind: Movie
   path: github.com/kuberik/director/api/v1
   version: v1
 version: "3"

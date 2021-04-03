@@ -9,7 +9,7 @@ rules:
 - apiGroups:
   - director.kuberik.io
   resources:
-  - plots
+  - movies
   verbs:
   - create
   - delete
@@ -21,13 +21,13 @@ rules:
 - apiGroups:
   - director.kuberik.io
   resources:
-  - plots/finalizers
+  - movies/finalizers
   verbs:
   - update
 - apiGroups:
   - director.kuberik.io
   resources:
-  - plots/status
+  - movies/status
   verbs:
   - get
   - patch

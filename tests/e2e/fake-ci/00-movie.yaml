@@ -1,8 +1,8 @@
 ---
 apiVersion: director.kuberik.io/v1
-kind: Plot
+kind: Movie
 metadata:
-  name: plot-sample
+  name: fake-ci
 spec:
   frames:
     - name: clone
@@ -12,8 +12,8 @@ spec:
             containers:
               - name: clone
                 image: alpine:latest
-                command: [bash, -c]
-                args: ["echo cloning... && sleep 5"]
+                command: [sh, -c]
+                args: ["echo cloning... && sleep 1"]
     - name: build
       causedBy:
         - clone
@@ -23,5 +23,5 @@ spec:
             containers:
               - name: build
                 image: alpine:latest
-                command: [bash, -c]
-                args: ["echo building... && sleep 5"]
+                command: [sh, -c]
+                args: ["echo building... && sleep 1"]

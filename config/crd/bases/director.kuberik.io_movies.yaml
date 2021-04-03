@@ -6,20 +6,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: plots.director.kuberik.io
+  name: movies.director.kuberik.io
 spec:
   group: director.kuberik.io
   names:
-    kind: Plot
-    listKind: PlotList
-    plural: plots
-    singular: plot
+    kind: Movie
+    listKind: MovieList
+    plural: movies
+    singular: movie
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: Plot is the Schema for the plots API
+        description: Movie is the Schema for the movies API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,7 +34,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: PlotSpec defines the desired state of Plot
+            description: MovieSpec defines the desired state of Movie
             properties:
               frames:
                 items:
@@ -7282,7 +7282,7 @@ spec:
                 type: array
             type: object
           status:
-            description: PlotStatus defines the observed state of Plot
+            description: MovieStatus defines the observed state of Movie
             properties:
               conditions:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state

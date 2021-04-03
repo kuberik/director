@@ -35,55 +35,55 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// PlotReconciler reconciles a Plot object
-type PlotReconciler struct {
+// MovieReconciler reconciles a Movie object
+type MovieReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-const plotNameLabel = "director.kuberik.io/plot"
+const movieNameLabel = "director.kuberik.io/movie"
 const frameNameLabel = "director.kuberik.io/frame"
 
-//+kubebuilder:rbac:groups=director.kuberik.io,resources=plots,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=director.kuberik.io,resources=plots/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=director.kuberik.io,resources=plots/finalizers,verbs=update
+//+kubebuilder:rbac:groups=director.kuberik.io,resources=movies,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=director.kuberik.io,resources=movies/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=director.kuberik.io,resources=movies/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the Plot object against the actual cluster state, and then
+// the Movie object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.7.2/pkg/reconcile
-func (r *PlotReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = r.Log.WithValues("plot", req.NamespacedName)
+func (r *MovieReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	_ = r.Log.WithValues("movie", req.NamespacedName)
 
 	// your logic here
-	plot := &directorv1.Plot{}
-	err := r.Client.Get(ctx, req.NamespacedName, plot)
+	movie := &directorv1.Movie{}
+	err := r.Client.Get(ctx, req.NamespacedName, movie)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	r.updateFrameStatuses(ctx, plot)
+	r.updateFrameStatuses(ctx, movie)
 	// TODO: finalizer
 
 frames:
-	for _, f := range plot.Spec.Frames {
-		if frameStatus := frameutil.FindFrameStatus(plot.Status.FrameStatuses, f.Name); frameStatus == nil {
+	for _, f := range movie.Spec.Frames {
+		if frameStatus := frameutil.FindFrameStatus(movie.Status.FrameStatuses, f.Name); frameStatus == nil {
 			// Start frame
 			for _, causalFrame := range f.CausedBy {
 				// TODO: enable globbing
-				status := frameutil.FindFrameStatus(plot.Status.FrameStatuses, causalFrame)
+				status := frameutil.FindFrameStatus(movie.Status.FrameStatuses, causalFrame)
 				if status == nil || status.State.Running != nil || !status.State.Finished.Success {
 					// Skip because dependencies are either not finished or failed
 					continue frames
 				}
 			}
-			job := frameJob(plot, &f)
+			job := frameJob(movie, &f)
 			err = r.Client.Create(ctx, job)
 			if err != nil && !errors.IsAlreadyExists(err) {
 				return ctrl.Result{}, err
@@ -95,18 +95,18 @@ frames:
 		}
 	}
 
-	err = r.Client.Status().Update(ctx, plot)
+	err = r.Client.Status().Update(ctx, movie)
 	if err != nil {
 		return ctrl.Result{Requeue: true}, nil
 	}
 	return ctrl.Result{}, nil
 }
 
-func (r *PlotReconciler) updateFrameStatuses(ctx context.Context, plot *directorv1.Plot) {
+func (r *MovieReconciler) updateFrameStatuses(ctx context.Context, movie *directorv1.Movie) {
 	jobs := &batchv1.JobList{}
 	r.Client.List(ctx, jobs, &client.ListOptions{
 		LabelSelector: labels.SelectorFromSet(map[string]string{
-			plotNameLabel: plot.Name,
+			movieNameLabel: movie.Name,
 		}),
 	})
 
@@ -114,11 +114,11 @@ func (r *PlotReconciler) updateFrameStatuses(ctx context.Context, plot *director
 		frameName := job.Labels[frameNameLabel]
 		for _, condition := range job.Status.Conditions {
 			if condition.Type == batchv1.JobFailed || condition.Type == batchv1.JobComplete {
-				frameutil.SetFrameStatus(&plot.Status.FrameStatuses, directorv1.FrameStatus{
+				frameutil.SetFrameStatus(&movie.Status.FrameStatuses, directorv1.FrameStatus{
 					Name: frameName,
 					State: directorv1.FrameState{
 						Finished: &directorv1.FrameStateFinished{
-							// StartedAt:  frameutil.FindFrameStatus(plot.Status.FrameStatuses, frameName).State.Running.StartedAt,
+							// StartedAt:  frameutil.FindFrameStatus(movie.Status.FrameStatuses, frameName).State.Running.StartedAt,
 							FinishedAt: condition.LastTransitionTime,
 							Success:    condition.Type == batchv1.JobComplete,
 						},
@@ -127,8 +127,8 @@ func (r *PlotReconciler) updateFrameStatuses(ctx context.Context, plot *director
 				break
 			}
 		}
-		if status := frameutil.FindFrameStatus(plot.Status.FrameStatuses, frameName); status == nil && job.Status.StartTime != nil {
-			frameutil.SetFrameStatus(&plot.Status.FrameStatuses, directorv1.FrameStatus{
+		if status := frameutil.FindFrameStatus(movie.Status.FrameStatuses, frameName); status == nil && job.Status.StartTime != nil {
+			frameutil.SetFrameStatus(&movie.Status.FrameStatuses, directorv1.FrameStatus{
 				Name: frameName,
 				State: directorv1.FrameState{
 					Running: &directorv1.FrameStateRunning{
@@ -142,18 +142,18 @@ func (r *PlotReconciler) updateFrameStatuses(ctx context.Context, plot *director
 
 var zero int32 = 0
 
-func frameJob(plot *directorv1.Plot, frame *directorv1.Frame) *batchv1.Job {
+func frameJob(movie *directorv1.Movie, frame *directorv1.Frame) *batchv1.Job {
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-%s", plot.Name, frame.Name),
-			Namespace: plot.Namespace,
+			Name:      fmt.Sprintf("%s-%s", movie.Name, frame.Name),
+			Namespace: movie.Namespace,
 			Labels: map[string]string{
-				plotNameLabel:  plot.Name,
+				movieNameLabel: movie.Name,
 				frameNameLabel: frame.Name,
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(
-					plot, directorv1.GroupVersion.WithKind(reflect.ValueOf(plot).Elem().Type().Name()),
+					movie, directorv1.GroupVersion.WithKind(reflect.ValueOf(movie).Elem().Type().Name()),
 				),
 			},
 		},
@@ -173,9 +173,9 @@ func frameJob(plot *directorv1.Plot, frame *directorv1.Frame) *batchv1.Job {
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *PlotReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *MovieReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&directorv1.Plot{}).
+		For(&directorv1.Movie{}).
 		Owns(&batchv1.Job{}).
 		Complete(r)
 }

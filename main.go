@@ -78,12 +78,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.PlotReconciler{
+	if err = (&controllers.MovieReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Plot"),
+		Log:    ctrl.Log.WithName("controllers").WithName("Movie"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "Plot")
+		setupLog.Error(err, "unable to create controller", "controller", "Movie")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

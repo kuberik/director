@@ -4,7 +4,7 @@ kind: TestAssert
 timeout: 60
 ---
 apiVersion: director.kuberik.io/v1
-kind: Plot
+kind: Movie
 metadata:
   name: fake-ci
 status:

@@ -25,8 +25,8 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// PlotSpec defines the desired state of Plot
-type PlotSpec struct {
+// MovieSpec defines the desired state of Movie
+type MovieSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// +optional
@@ -34,8 +34,8 @@ type PlotSpec struct {
 	Frames []Frame `json:"frames,omitempty"`
 }
 
-// PlotStatus defines the observed state of Plot
-type PlotStatus struct {
+// MovieStatus defines the observed state of Movie
+type MovieStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	// +optional
@@ -96,24 +96,24 @@ type FrameStateFinished struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// Plot is the Schema for the plots API
-type Plot struct {
+// Movie is the Schema for the movies API
+type Movie struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   PlotSpec   `json:"spec,omitempty"`
-	Status PlotStatus `json:"status,omitempty"`
+	Spec   MovieSpec   `json:"spec,omitempty"`
+	Status MovieStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// PlotList contains a list of Plot
-type PlotList struct {
+// MovieList contains a list of Movie
+type MovieList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []Plot `json:"items"`
+	Items           []Movie `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&Plot{}, &PlotList{})
+	SchemeBuilder.Register(&Movie{}, &MovieList{})
 }
